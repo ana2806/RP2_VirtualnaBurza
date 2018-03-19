@@ -1,0 +1,51 @@
+body{
+  margin: 0 auto;
+  text-align: center;
+}
+.reg_prav{
+  width: 500px;
+  height: 470px;
+  text-align: center;
+  margin: 0 auto;
+  margin-top: 50px;
+  border: 2px solid #19334d;
+  border-radius: 20px;
+  background-color: rgb(25, 51, 77, 0.8);
+  padding-top: 50px;
+}
+td{
+   padding: 5px;
+   padding-bottom: 10px;
+}
+label{
+  font-size: 20px;
+  color: #b8b894;
+}
+input{
+  height: 30px;
+  padding: 10px;
+  width: 300px;
+  font-size: 20px;
+  margin-bottom: 20px;
+  margin-left: 10px;
+  background-color: #fff;
+  text-align: left;
+}
+.button{
+  height: 60px;
+  width: 150px;
+  border: none;
+  padding: 15px 25px;
+  margin-top: 20px;
+  margin-left: 10px;
+  margin-right: 10px;
+  border-radius: 10px;
+  color: white;
+  background-color: #00b300;
+  text-align: center;
+  font-size: 20px;
+  cursor: pointer;
+}
+.button:hover{
+  background-color: #00cc00;
+}

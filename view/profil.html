@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href='./css/profil.css' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+    <title></title>
+  </head>
+  <body>
+    <h1 id="dobrodosliId"> Dobrodošli</h1>
+    <p id="stanjeRacunaId"> Stanje računa: </p>
+
+
+    <div id="divMojeDionice">Moje dionice <div/>
+    <script>
+    var username;
+
+    $( document ).ready( function()
+    {
+    	getLoginInfo();
+    } );
+
+    function getLoginInfo () {
+
+      console.log('getLoginInfo');
+
+      $.ajax(
+    	{
+      		url: "http://192.168.89.245/~anmlina/projekt/controller/getLoginInfo.php",
+      		data:
+      		{
+      		},
+      		dataType: "json",
+          success:function(data){
+            username = data.username;
+            console.log(data);
+
+            var dobrodosliId = document.getElementById( "dobrodosliId" );
+            dobrodosliId.innerHTML += " ";
+            dobrodosliId.innerHTML += data.name;
+            dobrodosliId.innerHTML += " ";
+            dobrodosliId.innerHTML += data.surname;
+
+            var stanjeRacunaId = document.getElementById( "stanjeRacunaId" );
+            stanjeRacunaId.innerHTML += " ";
+            stanjeRacunaId.innerHTML += data.kapital;
+            stanjeRacunaId.innerHTML += "kn";
+
+            dohvatiMojeDionice();
+
+          },
+          error: function( xhr, status, errorThrown ) {
+            console.log("xhr: " + xhr);
+            console.log("status: " + status);
+            console.log("errorThrown: " + errorThrown);
+          }
+      } );
+
+
+    }
+
+    function dohvatiMojeDionice () {
+
+
+      $.ajax(
+    	{
+      		url: "http://192.168.89.245/~anmlina/projekt/controller/mojeDionice.php",
+      		data:
+      		{
+      			usernamePHP: username
+      		},
+      		dataType: "json",
+          success:function(data){
+
+            //console.log('moje dionice');
+            //console.log(data);
+            var moje_dionice = data;
+
+            var divMojeDionice = document.getElementById( "divMojeDionice" );
+            for (var i = 0; i < moje_dionice.length; i++)//ovo je nacin kako procitati obican array poslan kroz json
+            {
+
+              divMojeDionice.innerHTML += moje_dionice[i].naziv;
+              console.log(moje_dionice[i]);
+              var btnProdajDionicu = document.createElement("button");
+	            btnProdajDionicu.innerHTML = 'Prodaj dionicu';
+              btnProdajDionicu.className = 'btnProdaj';
+              btnProdajDionicu.id = 'btnProdaj' + moje_dionice[i].id;
+              $('#' + btnProdajDionicu.id).attr('idDionice', moje_dionice[i].id);
+              //var trenutacnaDionicaId = moje_dionice[i].id;
+
+              divMojeDionice.appendChild(btnProdajDionicu);
+              divMojeDionice.innerHTML += '<br/>';
+
+              document.body.appendChild(btnOdjava);
+
+            }
+
+            for (var i = 0; i < moje_dionice.length; i++)//postavi event handler
+            {
+              var btnProdajId = 'btnProdaj' + moje_dionice[i].id;
+              $( '#' + btnProdajId ).on( "click", function()
+              {
+                var indeks = $(this).attr('id').substring(9);
+                console.log('postaviDionicuNaTrziste');
+                postaviDionicuNaTrziste( indeks );
+                alert("Dionica je uspješno postavljena na tržište!");
+              });
+            }
+
+
+          },
+          error: function( xhr, status, errorThrown ) {
+            console.log("xhr: " + xhr);
+            console.log("status: " + status);
+            console.log("errorThrown: " + errorThrown);
+          }
+      } );
+    }
+
+    function postaviDionicuNaTrziste (idDionice) {
+      $.ajax(
+    	{
+      		url: "http://192.168.89.245/~anmlina/projekt/controller/postaviDionicuNaTrziste.php",
+      		data:
+      		{
+              idDionicePHP: idDionice
+      		},
+      		dataType: "json",
+          success:function(data){
+            console.log("dobili smo: " + data);
+          },
+          error: function( xhr, status, errorThrown ) {
+            console.log("xhr: " + xhr);
+            console.log("status: " + status);
+            console.log("errorThrown: " + errorThrown);
+          }
+      } );
+    }
+
+    var btnOdjava = document.createElement("button");
+    btnOdjava.innerHTML = 'Odjava';
+    btnOdjava.id = "btnOdj";
+
+    document.body.appendChild(btnOdjava);
+    $( "#btnOdj" ).on( "click", function()
+    {
+      window.location.replace("http://192.168.89.245/~anmlina/projekt/view/burza.html");
+    });
+
+
+    </script>
+  </body>
+</html>

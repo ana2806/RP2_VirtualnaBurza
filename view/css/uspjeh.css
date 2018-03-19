@@ -1,0 +1,19 @@
+body{
+  margin: 0 auto;
+  background-image: url('./images/uspjeh.png');
+  background-size: 100% 660px;
+  text-align: center;
+}
+h1{
+  font-size: 60px;
+  margin-bottom: 50px;
+}
+a{
+  font-size: 30px;
+  color: black;
+  text-decoration: none;
+}
+a:hover{
+  color: #001a33;
+  text-decoration: underline;
+}

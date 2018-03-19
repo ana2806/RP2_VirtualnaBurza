@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href='./css/profilDionice.css' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+    <title></title>
+  </head>
+  <body>
+    <h1 id="dobrodosliId"> Dobrodošli, </h1>
+
+    <div id="divDioniceZaProdaju">Dionice na prodaju:<div/>
+
+    <script>
+    var username, kapital;
+
+    $( document ).ready( function()
+    {
+    	getLoginInfo();
+      $( "#profil" ).on( "click", function ()
+      {
+        window.location = "http://192.168.89.245/~anmlina/projekt/view/profil.html";
+      });
+
+    } );
+
+    function getLoginInfo () {
+
+      $.ajax(
+    	{
+      		url: "http://192.168.89.245/~anmlina/projekt/controller/getLoginInfo.php",
+      		data:
+      		{
+      		},
+      		dataType: "json",
+          success:function(data){
+            username = data.username;
+            console.log(data);
+
+            var dobrodosliId = document.getElementById( "dobrodosliId" );
+            dobrodosliId.innerHTML += " ";
+            dobrodosliId.innerHTML += data.name;
+            dobrodosliId.innerHTML += " ";
+            dobrodosliId.innerHTML += data.surname;
+
+            kapital = data.kapital;
+            var btnPortfolio = document.createElement("button");
+            btnPortfolio.innerHTML = 'Portfolio';
+            btnPortfolio.id = "profil";
+
+            $("h1").append('<br>');
+            $("h1").append(btnPortfolio);
+            $( "#profil" ).on( "click", function()
+            {
+              window.location = "http://192.168.89.245/~anmlina/projekt/view/profil.html";
+            });
+
+            dohvatiDionice();
+
+          },
+          error: function( xhr, status, errorThrown ) {
+            console.log("xhr: " + xhr);
+            console.log("status: " + status);
+            console.log("errorThrown: " + errorThrown);
+          }
+      } );
+
+
+    }
+
+    function dohvatiDionice () {
+      $.ajax(
+    	{
+      		url: "http://192.168.89.245/~anmlina/projekt/controller/prodajaDionice.php",
+      		data:
+      		{
+      			usernamePHP: username
+      		},
+      		dataType: "json",
+          success:function( data ) {
+
+            //console.log(data);
+            var moje_dionice1 = data;
+
+            var divDioniceZaProdaju = document.getElementById( "divDioniceZaProdaju" );
+            for (var i = 0; i < moje_dionice1.length; i++)//ovo je nacin kako procitati obican array poslan kroz json
+            {
+              //divDioniceZaProdaju.innerHTML += moje_dionice[i].naziv;
+              console.log(moje_dionice1[i]);
+
+              var idTrenutneDionice = moje_dionice1[i].id;
+
+              var pTrenutni = document.createElement( "p" );
+              pTrenutni.id = idTrenutneDionice;
+
+              console.log(idTrenutneDionice);
+              pTrenutni.innerHTML = moje_dionice1[i].naziv;
+
+              divDioniceZaProdaju.appendChild(pTrenutni);
+
+              var btnKupiDionicu = document.createElement("button");
+	            btnKupiDionicu.innerHTML = 'Kupi dionicu';
+              btnKupiDionicu.id = 'btn' + i + idTrenutneDionice;
+
+              divDioniceZaProdaju.appendChild(pTrenutni);
+
+              btnKupiDionicu.onclick = function( event ) {
+                var id  = $(this).attr('id');
+                var indeks = id.substring(3,4);
+                var tekst = 'Naziv: ';
+                tekst += moje_dionice1[indeks].naziv;
+                var vrij = 'Vrijednost: ' + moje_dionice1[indeks-1].vrijednost;
+                vrij += moje_dionice1[indeks].vrijednost;
+                vrij += 'kn';
+                var dividend = 'Dividenda: ';
+                dividend += moje_dionice1[indeks].dividenda;
+                var user = moje_dionice1[indeks].username_dionicara;
+                if (!user) user = 'nema vlasnika ';
+                id_prod = 'Prodana: ' + moje_dionice1[indeks].id_prodaje;
+
+                console.log(indeks);
+                var indeks2 = id.substring(4);
+                if (confirm('Jeste li sigurni da želite kupiti ovu dionicu?')) {
+                  var trenutniParagraf = document.getElementById(indeks2);
+                  trenutniParagraf.remove();
+                  prebaciDionicuNaMene(moje_dionice1[indeks].id, moje_dionice1[indeks].vrijednost);
+
+              };
+
+
+            }
+            pTrenutni.appendChild(btnKupiDionicu);
+          }
+
+          dohvatiRanking();
+
+          },
+          error: function( xhr, status, errorThrown ) {
+            console.log("xhr: " + xhr);
+            console.log("status: " + status);
+            console.log("errorThrown: " + errorThrown);
+          }
+      } );
+
+    }
+
+    function dohvatiRanking () {
+      $.ajax(
+    	{
+
+      		url: "http://192.168.89.245/~anmlina/projekt/controller/dohvacanjeRankinga.php",
+      		data:
+      		{   usernamePHP: username
+      		},
+      		dataType: "json",
+          success:function(data){
+
+          // console.log("dobili smo: " + data);
+            var lista = data;
+
+            var divRank = document.createElement( "div" );
+            divRank.id = "rank";
+
+            var tablica = document.createElement("table");
+            tablica.id = "tablica";
+
+            var naslov = document.createElement("tr");
+            naslov.id = "header";
+            var naslov2 = document.createElement("td");
+            naslov2.innerHTML = "Top 5";
+            naslov.appendChild(naslov2);
+            tablica.appendChild(naslov);
+
+            var red = document.createElement("tr");
+            red.id = "red";
+            var podaci = document.createElement("td");
+            podaci.innerHTML = "Rank";
+            red.appendChild(podaci);
+            var podaci2 = document.createElement("td");
+            podaci2.innerHTML = "Korisnik";
+            red.appendChild(podaci2);
+            var podaci3 = document.createElement("td");
+            podaci3.innerHTML = "Kapital";
+            red.appendChild(podaci3);
+            tablica.appendChild(red);
+            divRank.appendChild(tablica);
+
+            for (var i = 0; i < 5; i++)//ovo je nacin kako procitati obican array poslan kroz json
+            {
+              var korisnik = lista[i].username;
+              var novac = lista[i].kapital;
+              var red = document.createElement("tr");
+              red.id = "red" + ( i + 1);
+
+              var podaci0 = document.createElement("td");
+              podaci0.innerHTML = (i + 1) + ".";
+              red.appendChild(podaci0);
+
+              var podaci = document.createElement("td");
+              podaci.innerHTML = korisnik;
+              red.appendChild(podaci);
+
+              var podaci2 = document.createElement("td");
+              podaci2.innerHTML = novac;
+              red.appendChild(podaci2);
+
+              tablica.appendChild(red);
+              }
+
+              var j = 0;
+             for (var i = 0; i < lista.length; i++)
+             {
+                var korisnik = lista[i].username;
+                if(username == korisnik)  j = i + 1;
+             }
+
+             var redni_broj = document.createElement( "p" );
+             redni_broj.id = "koji_sam"
+             redni_broj.innerHTML += username;
+             redni_broj.innerHTML += ", vi ste trenutno na " ;
+             redni_broj.innerHTML +=  j ;
+             redni_broj.innerHTML += ".mjestu s iznosom od ";
+             redni_broj.innerHTML += kapital;
+             redni_broj.innerHTML += " kuna.";
+             divRank.appendChild(redni_broj);
+
+
+              document.body.appendChild(divRank);
+              popisDionica();
+
+          },
+          error: function( xhr, status, errorThrown ) {
+            console.log("xhr: " + xhr);
+            console.log("status: " + status);
+            console.log("errorThrown: " + errorThrown);
+          }
+      } );
+    }
+
+    function prebaciDionicuNaMene (idDionice, vrijednostDionice) {
+      $.ajax(
+    	{
+
+      		url: "http://192.168.89.245/~anmlina/projekt/controller/kupnjaDionice.php",
+      		data:
+      		{   usernamePHP: username,
+              idDionicePHP: idDionice,
+              vrijednostDionicePHP: vrijednostDionice
+      		},
+      		dataType: "json",
+          success:function(data){
+            console.log("dobili smo: " + data);
+          },
+          error: function( xhr, status, errorThrown ) {
+            console.log("xhr: " + xhr);
+            console.log("status: " + status);
+            console.log("errorThrown: " + errorThrown);
+          }
+      } );
+    }
+
+
+
+    function popisDionica() {
+      $.ajax(
+    	{
+      		url: "http://192.168.89.245/~anmlina/projekt/controller/popisDionica.php",
+      		data:
+      		{
+      			usernamePHP: username
+      		},
+      		dataType: "json",
+          success:function(data){
+
+            //console.log(data);
+            var dionice = data;
+            var popis = document.createElement("div");
+            popis.id = "popis";
+            popis.innerHTML = "Popis dionica (kliknite na naziv dionice da biste saznali više):"
+            for (var i = 0; i < dionice.length; i++)//ovo je nacin kako procitati obican array poslan kroz json
+            {
+              console.log(dionice[i]);
+
+             var idTrenutneDionice = dionice[i].id;
+
+              var pTrenutni = document.createElement( "p" );
+              pTrenutni.id = idTrenutneDionice;
+
+              console.log(idTrenutneDionice);
+              pTrenutni.innerHTML = dionice[i].naziv;
+
+              pTrenutni.onclick = function(event){
+                              var indeks = $(this).attr('id');
+                              var tekst = 'Naziv: ' + dionice[indeks-1].naziv;
+                              var vrij = 'Vrijednost: ' + dionice[indeks-1].vrijednost + ' kn';
+                              var dividend = 'Dividenda: ' + dionice[indeks-1].dividenda;
+                              var user = dionice[indeks-1].username_dionicara;
+                              if (!user) user = 'nema vlasnika ';
+                              id_prod = 'Prodana: ' + dionice[indeks-1].id_prodaje;
+                              console.log(indeks);
+                              window.alert("" + tekst + "\n" +
+                                            vrij + "\n" +
+                                            dividend + "\n" +
+                                            "Posjeduje: " + user + "\n" +
+                                            id_prod
+                                          ); };
+               popis.appendChild(pTrenutni);
+              }
+               document.body.appendChild(popis);
+               var btnOdjava = document.createElement("button");
+               btnOdjava.innerHTML = 'Odjava';
+               btnOdjava.id = "btnOdj";
+
+               document.body.appendChild(btnOdjava);
+               $( "#btnOdj" ).on( "click", function()
+               {
+                 window.location.replace("http://192.168.89.245/~anmlina/projekt/view/burza.html");
+               });
+          },
+          error: function( xhr, status, errorThrown ) {
+            console.log("xhr: " + xhr);
+            console.log("status: " + status);
+            console.log("errorThrown: " + errorThrown);
+          }
+        } );
+      }
+
+
+
+
+    </script>
+
+  </body>
+</html>
